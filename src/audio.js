@@ -1,3 +1,4 @@
+import { getMode } from './modes.js';
 const MUSIC_START = 4;
 const defaults = { music: 40, sfx: 85 };
 export function loadSettings() {
@@ -9,7 +10,7 @@ export function loadSettings() {
   } catch { return { ...defaults }; }
 }
 export class AudioDirector {
-  constructor() { this.settings = loadSettings(); this.wantsPlayback = false; this.revision = 0; this.disposed = false; }
+  constructor() { this.settings = loadSettings(); this.wantsPlayback = false; this.revision = 0; this.disposed = false; this.musicRate = 1; }
   acquireMusic() {
     if (this.ownsMusic || !globalThis.navigator?.locks) return Promise.resolve(true);
     if (this.lockPending) return this.lockPending;
@@ -33,6 +34,7 @@ export class AudioDirector {
       this.music = this.context.createGain(); this.music.connect(this.context.destination);
       this.loop = new Audio('/assets/audio/music.mp3'); this.loop.preload = 'auto';
       this.loop.currentTime = MUSIC_START;
+      this.loop.preservesPitch = false; this.loop.playbackRate = this.musicRate;
       this.onMetadata = () => { if (this.loop.currentTime < MUSIC_START) this.loop.currentTime = MUSIC_START; };
       this.onEnded = () => {
         this.loop.currentTime = MUSIC_START;
@@ -57,6 +59,20 @@ export class AudioDirector {
     this.starting = pending;
     pending.finally(() => { if (this.starting === pending) this.starting = null; });
     return pending;
+  }
+  setMode(mode) {
+    const target = getMode(mode).musicRate;
+    this.musicRate = target;
+    clearInterval(this.rateTransition);
+    if (!this.loop || this.disposed) return;
+    const loop = this.loop, from = loop.playbackRate, started = performance.now();
+    // Reuse the same media element and playback position; SFX remain untouched.
+    loop.preservesPitch = false;
+    this.rateTransition = setInterval(() => {
+      const progress = Math.min(1, (performance.now() - started) / 900);
+      loop.playbackRate = from + (target - from) * progress;
+      if (progress === 1) clearInterval(this.rateTransition);
+    }, 30);
   }
   set(key, value) {
     this.settings[key] = value;
@@ -94,7 +110,7 @@ export class AudioDirector {
   }
   dispose() {
     if (this.disposed) return;
-    this.suspend(); this.disposed = true;
+    this.suspend(); this.disposed = true; clearInterval(this.rateTransition);
     this.loop?.removeEventListener('loadedmetadata', this.onMetadata);
     this.loop?.removeEventListener('ended', this.onEnded);
     this.source?.disconnect(); this.music?.disconnect();

@@ -11,7 +11,7 @@ export class MenuTitle {
     this.context = this.canvas.getContext('2d');
     this.motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     this.image = new Image();
-    this.image.src = '/assets/menu/title-spritesheet.png';
+    this.image.src = '/assets/menu/title-spritesheet.png?v=2';
     this.ready = this.image.decode().then(() => {
       this.loaded = true;
       this.canvas.hidden = false;

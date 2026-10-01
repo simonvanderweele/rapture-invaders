@@ -1,3 +1,4 @@
+import { getMode } from './modes.js';
 import Phaser from 'phaser';
 import './style.css';
 import { OceanScene } from './game.js';
@@ -10,10 +11,16 @@ const menuTitle = new MenuTitle($('.menu-title'));
 window.__raptureAudio?.dispose();
 const audio = new AudioDirector();
 window.__raptureAudio = audio;
-const scores = new ScoreBoard();
+const boards = { normal: new ScoreBoard(), drowned: new ScoreBoard(globalThis.localStorage, 'drowned') };
+let scores = boards.normal;
 for (const event of ['pointerdown', 'keydown']) document.addEventListener(event, () => audio.start(), { once: true });
 const ui = {
-  screen: 'menu', scene: null,
+  screen: 'menu', scene: null, selectedMode: 'normal',
+  selectMode(mode) {
+    this.selectedMode = getMode(mode).id;
+    document.querySelectorAll('[data-mode]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.mode === this.selectedMode)));
+    $('#mode-description').textContent = mode === 'drowned' ? '2 HULLS · FASTER ATTACKS · SHORTER POWER-UPS' : '3 HULLS · THE ORIGINAL DESCENT';
+  },
   ready(scene) { this.scene = scene; this.show('menu'); $('#loading').classList.add('hidden'); audio.start(); },
   show(name) {
     this.screen = name;
@@ -26,8 +33,8 @@ const ui = {
     $('#touch-controls').classList.toggle('hidden', name !== 'play');
     if (name !== 'play') requestAnimationFrame(() => $(`#${name} button, #${name} input`)?.focus({ preventScroll: true }));
   },
-  start() { if (!this.scene) return; audio.start(); this.scene.tweens.resumeAll(); this.scene.startRun(); this.show('play'); document.activeElement?.blur(); },
-  menu() { this.scene.tweens.resumeAll(); this.scene.showMenu(); this.show('menu'); audio.start(); },
+  start() { if (!this.scene) return; scores = boards[this.selectedMode]; audio.setMode(this.selectedMode); audio.start(); $('#stage').dataset.mode = this.selectedMode; this.scene.tweens.resumeAll(); this.scene.startRun(this.selectedMode); this.show('play'); document.activeElement?.blur(); },
+  menu() { audio.setMode('normal'); $('#stage').dataset.mode = 'normal'; this.scene.tweens.resumeAll(); this.scene.showMenu(); this.show('menu'); audio.start(); },
   options() { this.scene.showMenu(false); this.show('options'); },
   credits() { this.scene.showMenu(false); this.show('credits'); },
   pause() { if (this.screen !== 'play') return; this.scene.pause(); this.show('pause'); audio.suspend(); },
@@ -39,7 +46,7 @@ const ui = {
     scores.save(this.scoreEntry);
     const ranked = scores.scores.some(s => s.id === this.scoreEntry.id);
     $('#result-eyebrow').textContent = score > previousBest ? 'NEW HIGH SCORE!' : won ? 'THE CITY IS YOURS' : 'SIGNAL LOST';
-    $('#result-title').textContent = 'HIGH SCORES';
+    $('#result-title').textContent = `${getMode(this.selectedMode).label} SCORES`;
     $('#result-score').textContent = String(score).padStart(6, '0');
     $('#score-name').value = 'DIVER'; $('#score-save').disabled = false; $('#score-save').textContent = 'SAVE NAME';
     $('#score-form').classList.toggle('hidden', !ranked);
@@ -63,6 +70,7 @@ const ui = {
     scores.save(this.scoreEntry); this.renderScores(); $('#score-save').textContent = 'SAVED'; $('#score-save').disabled = true;
   },
   updateHUD(scene) {
+    $('#run-mode').textContent = getMode(scene.runMode.id).label;
     $('#hull').textContent = '◆ '.repeat(Math.max(0, scene.lives)).trim() || '—';
     $('#score').textContent = String(scene.score).padStart(6, '0');
     $('#wave-label').textContent = scene.wave > 3 ? 'BIG DADDY' : `WAVE 0${scene.wave} / 03`;
@@ -70,6 +78,7 @@ const ui = {
     $('#power').textContent = Object.entries(scene.power).filter(([, t]) => t > scene.elapsed).map(([k, t]) => `${labels[k]} ${Math.ceil((t - scene.elapsed) / 1000)}s`).join(' · ') || 'BATHYSPHERE ONLINE';
   },
 };
+document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => { ui.selectMode(button.dataset.mode); audio.tone('click'); }));
 $('#score-form').addEventListener('submit', event => ui.saveScore(event));
 $('#score-name').addEventListener('input', () => { $('#score-save').disabled = false; $('#score-save').textContent = 'SAVE NAME'; });
 document.querySelectorAll('[data-action]').forEach(button => button.addEventListener('click', () => {

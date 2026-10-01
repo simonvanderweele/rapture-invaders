@@ -4,7 +4,7 @@ export const FRAMES = {
   triple: [612, 456, 117, 108], chain: [1081, 456, 120, 108],
 };
 export { preloadActors } from './actor-animations.js';
-import { ACTORS, createActorAnimations } from './actor-animations.js';
+import { ALL_ACTORS, createActorAnimations } from './actor-animations.js';
 const ACTOR_KEYS = { player: 'player', flyer: 'security-flyer', drone: 'rivet-drone', heavy: 'heavy-gunship', boss: 'big-daddy' };
 export function registerAssets(scene) {
   const texture = scene.textures.get('overview');
@@ -12,8 +12,10 @@ export function registerAssets(scene) {
   createActorAnimations(scene);
 }
 export function actorSprite(scene, x, y, entity, scale = 1) {
-  const key = ACTOR_KEYS[entity];
+  const base = ACTOR_KEYS[entity];
+  const key = scene.runMode?.id === 'drowned' && ALL_ACTORS[`drowned-${base}`] ? `drowned-${base}` : base;
   const sprite = scene.add.sprite(x, y, `${key}-idle`).setScale(scale).play(`${key}-idle`);
+  sprite.actorKey = key; sprite.baseTint = key.startsWith('drowned-') ? 0xffffff : (scene.runMode?.tint ?? 0xffffff); sprite.setTint(sprite.baseTint);
   sprite.on('animationcomplete', animation => {
     if (animation.key.endsWith('-die')) sprite.destroy();
     else if (sprite.active) sprite.play(`${key}-idle`);
@@ -22,13 +24,13 @@ export function actorSprite(scene, x, y, entity, scale = 1) {
 }
 export function animate(sprite, entity, state, onFire) {
   if (!sprite.active) return;
-  const key = `${ACTOR_KEYS[entity]}-${state === 'consume' ? 'consume-power-up' : state}`;
+  const key = `${sprite.actorKey ?? ACTOR_KEYS[entity]}-${state === 'consume' ? 'consume-power-up' : state}`;
   // A collection effect takes priority over firing art, but never suppresses a shot.
   if (state === 'shoot' && sprite.anims.currentAnim?.key.endsWith('consume-power-up')) { onFire?.(); return; }
   if (sprite.fireListener) sprite.off('animationupdate', sprite.fireListener);
   sprite.fireListener = null;
   if (onFire) {
-    const fireFrame = ACTORS[ACTOR_KEYS[entity]].animations[state]?.fireFrame ?? 0;
+    const fireFrame = ALL_ACTORS[sprite.actorKey ?? ACTOR_KEYS[entity]].animations[state]?.fireFrame ?? 0;
     sprite.fireListener = (animation, frame) => {
       if (animation.key === key && frame.index === fireFrame + 1) {
         sprite.off('animationupdate', sprite.fireListener); sprite.fireListener = null; onFire();

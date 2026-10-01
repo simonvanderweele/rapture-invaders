@@ -1,11 +1,12 @@
+import { getMode } from './modes.js';
 import Phaser from 'phaser';
 import { registerAssets, animate, installOverviewPipeline, styleOverview, preloadActors, actorSprite, preloadWaves, registerWaves } from './assets.js';
-import { ENEMIES, POWER_DURATION, BURST_LIFETIME, canBurst, applyDamage, burstVelocities, formation, divePosition } from './rules.js';
+import { ENEMIES, BURST_LIFETIME, canBurst, applyDamage, burstVelocities, formation, divePosition } from './rules.js';
 import { BossFight } from './boss.js';
 import { Juice } from './juice.js';
 const W = 1280, H = 720;
 export class OceanScene extends Phaser.Scene {
-  constructor(ui, audio) { super('ocean'); this.ui = ui; this.audio = audio; }
+  constructor(ui, audio) { super('ocean'); this.ui = ui; this.audio = audio; this.runMode = getMode('normal'); }
   preload() { preloadActors(this); preloadWaves(this); this.load.image('overview', '/assets/asset-overview.png'); this.load.on('loaderror', () => { document.querySelector('#loading').textContent = 'ASSET LOAD FAILED — PLEASE RELOAD'; }); }
   create() {
     registerAssets(this); registerWaves(this);
@@ -20,8 +21,8 @@ export class OceanScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-ESC', () => this.ui.escape());
     this.input.keyboard.on('keydown-ENTER', event => { if (this.ui.screen === 'menu' && !(event.target instanceof HTMLButtonElement)) this.ui.start(); });
     this.input.keyboard.on('keydown-SPACE', event => { if (event.target instanceof HTMLInputElement || event.target instanceof HTMLButtonElement) return; event.preventDefault(); });
-    this.menuShip = actorSprite(this, 640, 340, 'player', 2).setDepth(5);
-    this.tweens.add({ targets: this.menuShip, y: 348, yoyo: true, repeat: -1, duration: 1500, ease: 'Sine.easeInOut' });
+    this.menuShip = actorSprite(this, 640, 288, 'player', 2).setDepth(5);
+    this.tweens.add({ targets: this.menuShip, y: 296, yoyo: true, repeat: -1, duration: 1500, ease: 'Sine.easeInOut' });
     this.touch = { left: false, right: false, fire: false };
     this.mode = 'menu'; this.ui.ready(this);
   }
@@ -66,9 +67,10 @@ export class OceanScene extends Phaser.Scene {
     this.combat.removeAll(true); this.effects.removeAll(true); this.bars.clear();
     this.enemies = []; this.bullets = []; this.pickups = []; this.particles = [];
   }
-  startRun() {
+  startRun(mode = 'normal') {
+    this.runMode = getMode(mode);
     this.time.paused = false; this.clearCombat(); this.menuShip.setVisible(false); this.mode = 'play';
-    this.elapsed = 0; this.score = 0; this.lives = 3; this.wave = 0; this.kills = 0; this.shotAt = 0; this.hurtUntil = 1500;
+    this.elapsed = 0; this.score = 0; this.lives = this.runMode.lives; this.wave = 0; this.kills = 0; this.shotAt = 0; this.hurtUntil = 1500;
     this.hitStop = 0; this.thrustAt = 0; this.nextDiveAt = 2400; this.ending = false;
     this.power = { shield: 0, triple: 0, chain: 0 }; this.transitionAt = 0; this.dropIndex = 0;
     this.spawnPlayer();
@@ -115,6 +117,7 @@ export class OceanScene extends Phaser.Scene {
     if (type === 'boss') this.bossFight = new BossFight(this, this.enemies.at(-1));
   }
   fire(x, y, vx, vy, friendly, chain = false) {
+    if (!friendly) { vx *= this.runMode.projectileSpeed; vy *= this.runMode.projectileSpeed; }
     const color = friendly ? (chain ? 0xe39afa : 0x7eedff) : 0xffb84d;
     const sprite = this.add.rectangle(x, y, chain ? 5 : 4, chain ? 5 : 12, color).setBlendMode(Phaser.BlendModes.ADD);
     this.combat.add(sprite); sprite.rotation = Math.atan2(vy, vx) + Math.PI / 2;
@@ -141,7 +144,7 @@ export class OceanScene extends Phaser.Scene {
       angles.forEach(angle => this.fire(enemy.sprite.x, enemy.sprite.y + ENEMIES[enemy.type].height * .38, Math.sin(aim + angle) * 215, Math.cos(aim + angle) * 215, false));
       this.explode(enemy.sprite.x, enemy.sprite.y + enemy.height * .4, 0xffb654, 5);
     });
-    enemy.fireAt = this.elapsed + ENEMIES[enemy.type].fireDelay + Math.random() * 450;
+    enemy.fireAt = this.elapsed + (ENEMIES[enemy.type].fireDelay + Math.random() * 450) * this.runMode.fireInterval;
   }
   explode(x, y, color = 0xffb650, count = 15) {
     for (let i = 0; i < count; i++) {
@@ -180,7 +183,7 @@ export class OceanScene extends Phaser.Scene {
   collect(pickup) {
     this.juice.ring(this.player.x, this.player.y, 0x91ffeb, 140, 700);
     this.juice.label(this.player.x, this.player.y - 55, { shield: 'INVINCIBLE', triple: 'TRIPLE SHOT', chain: 'BURST READY' }[pickup.type], '#adfff2', 12);
-    this.power[pickup.type] = this.elapsed + POWER_DURATION;
+    this.power[pickup.type] = this.elapsed + this.runMode.powerDuration;
     this.audio.tone('pickup'); animate(this.player, 'player', 'consume'); this.explode(this.player.x, this.player.y, 0x81edec, 30);
     pickup.sprite.destroy(); this.pickups.splice(this.pickups.indexOf(pickup), 1); this.ui.updateHUD(this);
   }
@@ -270,7 +273,7 @@ export class OceanScene extends Phaser.Scene {
       e.sprite.angle = Math.sin(this.elapsed / 800 + e.phase) * (e.type === 'boss' ? 2 : 3);
     }
     e.recoil *= Math.pow(.82, dt / 16);
-    if (this.elapsed >= e.flashUntil) e.sprite.clearTint();
+    if (this.elapsed >= e.flashUntil) e.sprite.setTint(e.sprite.baseTint);
     this.drawEnemyBars(e);
   }
   drawEnemyBars(e) {
@@ -322,10 +325,10 @@ export class OceanScene extends Phaser.Scene {
     this.bars.clear();
     if (this.power.shield > this.elapsed) { this.bars.lineStyle(2, 0x7aeeff, .8); this.bars.strokeCircle(this.player.x, this.player.y, 34); }
     const activeDivers = this.enemies.filter(e => e.state !== 'formation' && e.type !== 'boss');
-    if (this.wave <= 3 && this.elapsed >= this.nextDiveAt && activeDivers.length < (this.wave === 1 ? 2 : 3)) {
+    if (this.wave <= 3 && this.elapsed >= this.nextDiveAt && activeDivers.length < (this.wave === 1 ? 2 : 3) + this.runMode.extraDivers) {
       const available = this.enemies.filter(e => e.state === 'formation');
       if (available.length) this.beginDive(Phaser.Utils.Array.GetRandom(available));
-      this.nextDiveAt = this.elapsed + (this.wave === 1 ? 1800 : 1250);
+      this.nextDiveAt = this.elapsed + (this.wave === 1 ? 1800 : 1250) * this.runMode.diveInterval;
     }
     for (const e of this.enemies) this.updateEnemy(e, dt);
     this.bossFight?.update();

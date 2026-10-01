@@ -1,3 +1,4 @@
+import { DROWNED_ACTORS } from './drowned-assets.js';
 export const ACTORS = {
   "security-flyer": {
     "frameWidth": 96,
@@ -182,11 +183,13 @@ export const ACTORS = {
   }
 };
 
+export const ALL_ACTORS = { ...ACTORS, ...Object.fromEntries(Object.entries(DROWNED_ACTORS).map(([key, spec]) => [`drowned-${key}`, { ...ACTORS[key], ...spec }])) };
+
 export function preloadActors(scene, baseUrl = '/assets/sprites-v1') {
   const base = baseUrl.replace(/\/$/, '');
-  for (const [entity, spec] of Object.entries(ACTORS)) {
+  for (const [entity, spec] of Object.entries(ALL_ACTORS)) {
     for (const [name, animation] of Object.entries(spec.animations)) {
-      scene.load.spritesheet(`${entity}-${name}`, `${base}/${animation.file}`, {
+      scene.load.spritesheet(`${entity}-${name}`, `${entity.startsWith('drowned-') ? '/assets/drowned' : base}/${animation.file}`, {
         frameWidth: spec.frameWidth, frameHeight: spec.frameHeight,
         margin: 0, spacing: 0
       });
@@ -195,7 +198,7 @@ export function preloadActors(scene, baseUrl = '/assets/sprites-v1') {
 }
 
 export function createActorAnimations(scene) {
-  for (const [entity, spec] of Object.entries(ACTORS)) {
+  for (const [entity, spec] of Object.entries(ALL_ACTORS)) {
     for (const [name, animation] of Object.entries(spec.animations)) {
       const key = `${entity}-${name}`;
       if (scene.anims.exists(key)) continue;

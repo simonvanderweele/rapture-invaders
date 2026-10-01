@@ -29,7 +29,7 @@ export class BossFight {
     }
   }
   recover() {
-    this.state = 'recovery'; this.until = this.scene.elapsed + bossTiming(this.phase).recovery;
+    this.state = 'recovery'; this.until = this.scene.elapsed + bossTiming(this.phase).recovery * this.scene.runMode.bossRecovery;
   }
   update() {
     const s = this.scene, e = this.enemy, now = s.elapsed, g = this.graphics;

@@ -6,14 +6,15 @@ export function rankScores(scores) {
     .sort((a, b) => b.score - a.score).slice(0, 5);
 }
 export class ScoreBoard {
-  constructor(storage = globalThis.localStorage) {
+  constructor(storage = globalThis.localStorage, mode = 'normal') {
+    this.key = mode === 'drowned' ? 'rapture-high-scores-drowned-v1' : KEY;
     this.storage = storage; this.persisted = true;
-    try { const saved = JSON.parse(storage.getItem(KEY) || '[]'); this.scores = rankScores(Array.isArray(saved) ? saved : []); }
+    try { const saved = JSON.parse(storage.getItem(this.key) || '[]'); this.scores = rankScores(Array.isArray(saved) ? saved : []); }
     catch { this.scores = []; }
   }
   save(entry) {
     this.scores = rankScores([...this.scores.filter(s => s.id !== entry.id), entry]);
-    try { this.storage.setItem(KEY, JSON.stringify(this.scores)); this.persisted = true; }
+    try { this.storage.setItem(this.key, JSON.stringify(this.scores)); this.persisted = true; }
     catch { this.persisted = false; }
     return this.scores;
   }
