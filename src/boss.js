@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { animate } from './assets.js';
-import { bossPhase, bossTiming, boltLanes, chargeTargets, radialShots, insideBolt } from './boss-rules.js';
+import { armoredBossPhase, bossTiming, boltLanes, chargeTargets, radialShots, insideBolt } from './boss-rules.js';
 export class BossFight {
   constructor(scene, enemy) {
     this.scene = scene; this.enemy = enemy; this.phase = 1; this.index = 0;
@@ -34,7 +34,7 @@ export class BossFight {
   update() {
     const s = this.scene, e = this.enemy, now = s.elapsed, g = this.graphics;
     g.clear();
-    const nextPhase = bossPhase(e.health);
+    const nextPhase = armoredBossPhase(e);
     if (nextPhase > this.phase) {
       this.phase = nextPhase; s.juice.ring(e.sprite.x, e.sprite.y, 0xff8d57, 210, 1000);
       s.audio.tone('boom'); s.juice.light = .8;
@@ -81,7 +81,7 @@ export class BossFight {
     if (this.attack === 'charges' && active) {
       for (const mine of [...this.mines]) {
         if (now >= mine.detonates) {
-          for (const v of radialShots(this.attackPhase, .2)) s.fire(mine.x, mine.y, v.x, v.y, false);
+          for (const v of radialShots(this.attackPhase, .2)) s.fire(mine.x, mine.y, v.x * s.runMode.bossProjectileSpeed, v.y * s.runMode.bossProjectileSpeed, false);
           s.explode(mine.x, mine.y, 0xffb653, 22); s.juice.ring(mine.x, mine.y, 0xffb653, 100, 450); s.audio.tone('boom');
           this.mines.splice(this.mines.indexOf(mine), 1);
         } else {
@@ -100,9 +100,9 @@ export class BossFight {
       for (const angle of [-.8, 0, .8]) g.lineBetween(origin.x, origin.y + 60, origin.x + Math.sin(angle) * 430, origin.y + 60 + Math.cos(angle) * 430);
     }
     if (this.attack === 'barrage' && active && now >= this.nextVolley) {
-      this.nextVolley = now + (this.attackPhase === 3 ? 150 : 200);
+      this.nextVolley = now + (this.attackPhase === 3 ? 150 : 200) * s.runMode.bossVolleyInterval;
       const p = (now - this.started) / 2100, angle = -.85 + p * 1.7;
-      const speed = bossTiming(this.attackPhase).speed;
+      const speed = bossTiming(this.attackPhase).speed * s.runMode.bossProjectileSpeed;
       for (const offset of this.attackPhase === 1 ? [-.12, .12] : [-.2, 0, .2]) {
         s.fire(e.sprite.x, e.sprite.y + 65, Math.sin(angle + offset) * speed, Math.cos(angle + offset) * speed, false);
       }

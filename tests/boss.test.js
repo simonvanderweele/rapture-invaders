@@ -24,3 +24,24 @@ test('mines stay inside playable area and emit finite outward volleys', () => {
     assert.ok(shots.every(v=>Math.abs(Math.hypot(v.x,v.y)-(135+phase*15))<1e-8));
   }
 });
+
+import { armoredBossPhase } from '../src/boss-rules.js';
+import { getMode } from '../src/modes.js';
+import { applyDamage } from '../src/rules.js';
+test('Drowned boss takes exactly five times the hits and armor absorbs before hull', () => {
+  const hits = {};
+  for (const mode of ['normal', 'drowned']) {
+    let boss = { health: 50, armor: getMode(mode).bossArmor };
+    hits[mode] = 0;
+    while (boss.health > 0) { const armored = boss.armor > 0; boss = applyDamage(boss); if (armored) assert.equal(boss.health, 50); hits[mode]++; }
+  }
+  assert.equal(hits.normal, 75); assert.equal(hits.drowned, hits.normal * 5);
+});
+test('armored boss phases escalate during armor depletion', () => {
+  const boss = { maxHealth: 50, maxArmor: 325, health: 50, armor: 325 };
+  assert.equal(armoredBossPhase(boss), 1);
+  assert.equal(armoredBossPhase({ ...boss, armor: 175 }), 2);
+  assert.equal(armoredBossPhase({ ...boss, armor: 62 }), 3);
+  assert.equal(armoredBossPhase({ ...boss, armor: 0 }), 3);
+  assert.ok(getMode('drowned').bossVolleyInterval < getMode('normal').bossVolleyInterval);
+});

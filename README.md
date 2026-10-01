@@ -20,7 +20,7 @@ Open the URL printed by Vite (normally http://localhost:5173). `npm run build` p
 - Arrow keys or WASD: move within the lower combat area.
 - Hold Space: shoot. Escape: pause/resume.
 - Three fleets of 24 ships, followed by Big Daddy with three phases at 50–31, 30–16, and 15–1 HP.
-- Hits to kill: security flyer 2, rivet drone 4, heavy gunship 5 (2 armor + 3 hull), Big Daddy 50. Every enemy has a health bar; heavy armor sits above hull.
+- Hits to kill: security flyer 2, rivet drone 4, heavy gunship 5 (2 armor + 3 hull), Big Daddy 75 in Normal and 375 in Drowned (including armor). Every enemy has a health bar; heavy armor sits above hull.
 - Every fifth normal enemy drops a pickup, cycling through invincibility, triple shot, and chain burst. Collect by touching it. Each lasts nine seconds; effects can overlap.
 - Burst produces eight radial shots only on direct player-shot kills while active. Burst-shot kills never propagate. Fragments last 650 ms (about 215 px of travel); at most 24 may coexist, and a new burst is skipped if fewer than eight slots remain.
 - Normal enemies hold fire in formation. Selected ships telegraph a sortie for 500 ms, zigzag down while shooting, then return to formation. At most two sorties coexist in wave one and three thereafter. Three player lives. Losing a life plays the death animation, then respawns a new ship at (640, 626), flashing and invincible for 2.2 seconds. The final life leads to game over.
@@ -47,7 +47,7 @@ Open the URL printed by Vite (normally http://localhost:5173). `npm run build` p
 
 ## Big Daddy specials
 
-Big Daddy keeps 50 HP and cycles through three visually telegraphed specials, without attack instructions or phase callout text. He braces in place during attacks and moves during reload windows. Difficulty escalates at 60% and 30% health; attacks already in progress keep their original phase tuning.
+Big Daddy has 50 HP plus 25 armor in Normal or 325 armor in Drowned, and cycles through three visually telegraphed specials, without attack instructions or phase callout text. He braces in place during attacks and moves during reload windows. Difficulty escalates at 60% and 30% combined armor and health; attacks already in progress keep their original phase tuning.
 
 - **Electro Bolt:** two marked vertical lanes in phase one, three later. Subtle cyan fills and square brass corner brackets show the shock area; there are no arrow patterns or text instructions. Targets lock when the warning begins. After 1.1 / 1.0 / 0.9 seconds the lanes become dangerous for 1.05 seconds. Safe space remains outside the marked lanes.
 - **Depth Charges:** two / three / four marked pods fall into the lower arena, then detonate in sequence into 10 / 12 / 14 radial projectiles each. Markers show the destinations before launch.
@@ -65,7 +65,7 @@ The server validates mode, wave, score range, score increments, and names; it do
 
 ## Drowned
 
-Start Game opens difficulty selection. Drowned has two hulls, 18% faster enemy shots, 25% shorter dive intervals and boss recovery, one additional simultaneous diver, 15% shorter enemy fire intervals, and seven-second power-ups. Music smoothly shifts to 95% speed with lowered pitch and restores to 100% at the menu, without replacing the audio element. Retry keeps the mode. Art currently uses a cold tint; register delivered replacement animation sheets in `src/drowned-assets.js` under `public/assets/drowned/`.
+Start Game opens difficulty selection. Drowned has two hulls, 18% faster enemy shots, 25% shorter dive intervals and 45% shorter boss recovery, one additional simultaneous diver, 15% shorter enemy fire intervals, and seven-second power-ups. Drowned boss volleys fire 25% more frequently by interval, with an additional 20% projectile speed. Music smoothly shifts to 95% speed with lowered pitch and restores to 100% at the menu, without replacing the audio element. Retry keeps the mode. Art currently uses a cold tint; register delivered replacement animation sheets in `src/drowned-assets.js` under `public/assets/drowned/`.
 
 
 ## Art and effects

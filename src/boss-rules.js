@@ -19,3 +19,6 @@ export function radialShots(phase, rotation = 0) {
   });
 }
 export const insideBolt = (player, lanes, width) => player.y >= 365 && lanes.some(x => Math.abs(player.x - x) < width / 2 + 13);
+
+// Armor contributes to phase progression so the armored fight keeps escalating.
+export const armoredBossPhase = enemy => bossPhase(50 * (enemy.health + enemy.armor) / (enemy.maxHealth + enemy.maxArmor));

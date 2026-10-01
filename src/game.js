@@ -110,10 +110,10 @@ export class OceanScene extends Phaser.Scene {
     this.effects.add([text, small]); this.tweens.add({ targets: [text, small], alpha: 0, delay: 1300, duration: 500, onComplete: () => { text.destroy(); small.destroy(); } });
   }
   spawnEnemy(type, x, y) {
-    const config = ENEMIES[type];
+    const config = { ...ENEMIES[type], ...(type === 'boss' ? { armor: this.runMode.bossArmor } : {}) };
     const sprite = actorSprite(this, x, y - 140, type);
     this.combat.add(sprite);
-    this.enemies.push({ type, sprite, x, y, health: config.health, armor: config.armor, phase: Math.random() * 6.28, state: 'formation', recoil: 0, flashUntil: 0, entryAt: this.elapsed, diveAt: 0, fireAt: this.elapsed + 1900 + Math.random() * config.fireDelay, ...config });
+    this.enemies.push({ type, sprite, x, y, health: config.health, armor: config.armor, phase: Math.random() * 6.28, state: 'formation', recoil: 0, flashUntil: 0, maxHealth: config.health, maxArmor: config.armor, entryAt: this.elapsed, diveAt: 0, fireAt: this.elapsed + 1900 + Math.random() * config.fireDelay, ...config });
     if (type === 'boss') this.bossFight = new BossFight(this, this.enemies.at(-1));
   }
   fire(x, y, vx, vy, friendly, chain = false) {
@@ -280,15 +280,16 @@ export class OceanScene extends Phaser.Scene {
     const boss = e.type === 'boss', width = boss ? 500 : Math.max(36, e.width * .78);
     const x = boss ? 390 : e.sprite.x - width / 2;
     const y = boss ? 90 : e.sprite.y - e.height / 2 - (e.type === 'heavy' ? 16 : 10);
-    const height = boss ? 8 : 4, armorRow = ENEMIES[e.type].armor > 0;
-    const healthY = y + (armorRow ? 6 : 0);
-    this.bars.fillStyle(0x001018, .9).fillRect(x - 2, y - 2, width + 4, height + 4 + (armorRow ? 6 : 0));
+    const height = boss ? 8 : 4, armorRow = e.maxArmor > 0;
+    const armorOffset = boss ? 12 : 6;
+    const healthY = y + (armorRow ? armorOffset : 0);
+    this.bars.fillStyle(0x001018, .9).fillRect(x - 2, y - 2, width + 4, height + 4 + (armorRow ? armorOffset : 0));
     if (armorRow) {
-      this.bars.fillStyle(0x17353d).fillRect(x, y, width, 4);
-      this.bars.fillStyle(0x76dbe8).fillRect(x, y, width * e.armor / ENEMIES[e.type].armor, 4);
+      this.bars.fillStyle(0x17353d).fillRect(x, y, width, height);
+      this.bars.fillStyle(0x76dbe8).fillRect(x, y, width * e.armor / e.maxArmor, height);
     }
     this.bars.fillStyle(0x3f3431).fillRect(x, healthY, width, height);
-    this.bars.fillStyle(boss ? 0xe67950 : e.health === 1 ? 0xf7b369 : 0x98d38f).fillRect(x, healthY, width * e.health / ENEMIES[e.type].health, height);
+    this.bars.fillStyle(boss ? 0xe67950 : e.health === 1 ? 0xf7b369 : 0x98d38f).fillRect(x, healthY, width * e.health / e.maxHealth, height);
     if (!boss) for (let i = 1; i < ENEMIES[e.type].health; i++) {
       this.bars.fillStyle(0x001018, .6).fillRect(x + i * width / ENEMIES[e.type].health, healthY, 1, height);
     }
