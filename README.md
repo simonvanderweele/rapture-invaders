@@ -90,7 +90,7 @@ Only the three pickup icons still use concept-sheet crops and the temporary navy
 
 Combat feedback includes banking, thruster wakes, bullet trails, hit flashes, armor-break cues, layered explosion rings, death strips, floating scores, camera shake, and brief kill impact pauses. The city has parallax, drifting shafts of light, fish, bubbles, and sonar sweeps. Reduced-motion preference disables impact camera shake/flash.
 
-The supplied pixel-art cutout is an unmodified asset at `public/assets/menu-cameo-pixel-v2.png`. Exactly one decorative image appears on the main menu only. At 24% of the screen width, a 14-second CSS animation fades between 0 and 1.5% opacity while floating and rotating; each pass moves it to another position. The cutout retains its pixel edges. Reduced-motion preference uses a static 1.5% opacity image.
+The supplied pixel-art cutout is an unmodified asset at `public/assets/menu-cameo-pixel-v2.png`. Exactly one decorative image appears on the main menu only. At 24% of the screen width, a 14-second CSS animation fades between 0 and 8% opacity while floating and rotating; each pass moves it to another position. The cutout retains its pixel edges. Reduced-motion preference uses a static 8% opacity image.
 
 ## Visual status
 
