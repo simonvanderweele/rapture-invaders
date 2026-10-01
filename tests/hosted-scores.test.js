@@ -16,7 +16,7 @@ test('hosted rankings persist between clients, separate modes, and return top fi
   const env = environment();
   for (let i = 1; i <= 6; i++) assert.equal((await submit(env, entry({ score: i * 100 }))).status, 200);
   await submit(env, entry({ mode: 'drowned', score: 1500 }));
-  assert.deepEqual((await read(env)).scores.map(s => s.score), [600, 500, 400, 300, 200]);
+  assert.deepEqual((await read(env)).scores.map(s => s.score), [9999998, 600, 500, 400, 300]);
   const drowned = (await read(env, 'drowned')).scores;
   assert.equal(drowned.length, 1); assert.equal(drowned[0].score, 1500);
   assert.equal('token_hash' in drowned[0], false);
@@ -24,11 +24,11 @@ test('hosted rankings persist between clients, separate modes, and return top fi
 test('retry is idempotent and another token cannot rename or change a score', async () => {
   const env = environment(), score = entry();
   await submit(env, score); await submit(env, score);
-  assert.equal((await read(env)).scores.length, 1);
+  assert.equal((await read(env)).scores.filter(s => s.id === score.id).length, 1);
   assert.equal((await submit(env, { ...score, name: 'ATLAS' })).status, 200);
   assert.equal((await submit(env, { ...score, token: crypto.randomUUID(), name: 'FAKE' })).status, 409);
   assert.equal((await submit(env, { ...score, score: 1000 })).status, 409);
-  assert.equal((await read(env)).scores[0].name, 'ATLAS');
+  assert.equal((await read(env)).scores.find(s => s.id === score.id).name, 'ATLAS');
 });
 test('rejects malformed, impossible and cross-site submissions', async () => {
   const env = environment();
@@ -46,5 +46,14 @@ test('client keeps run identity for safe save retries and never reports a failed
   await assert.rejects(board.save(score)); assert.deepEqual(board.scores, []);
   fail = false; await board.save(score); await board.save(score);
   const otherClient = new HostedScoreBoard('normal', (url, options) => worker.fetch(new Request(`https://game.test${url}`, options), env));
-  await otherClient.load(); assert.equal(otherClient.scores[0].id, score.id);
+  await otherClient.load(); assert.equal(otherClient.scores.find(s => s.id === score.id).id, score.id);
+});
+
+test('SIMON joke entry appears only once in Normal and public score limits remain intact', async () => {
+  const env = environment();
+  await read(env); const normal = (await read(env)).scores;
+  assert.equal(normal.filter(s => s.name === 'SIMON').length, 1);
+  assert.equal(normal[0].score, 9999998);
+  assert.deepEqual((await read(env, 'drowned')).scores, []);
+  assert.equal((await submit(env, entry({ name: 'SIMON', score: 9999998 }))).status, 400);
 });
