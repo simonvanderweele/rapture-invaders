@@ -8,7 +8,7 @@ A playable BioShock-themed fixed-screen shooter built with Phaser 3 and Vite. Ho
 
 - [Watch the gameplay video](docs/presentation/gameplay.mp4)
 - [View the gameplay screenshot](docs/presentation/gameplay.png)
-- [Codex conversation history](docs/presentation/history/codex-cli-prompt-history.md)
+- [Codex conversation history](docs/presentation/history/codex-cli-prompt-history.md) · [HTML export](docs/presentation/history/codex-cli-prompt-history.html)
 - [ChatGPT conversation history](docs/presentation/history/chatgpt-prompt-history.txt) · [HTML export](docs/presentation/history/chatgpt-prompt-history.html)
 - [Play on Codex Sites](https://rapture-invaders.simonvdw.chatgpt.site) — currently private; viewers need access.
 
