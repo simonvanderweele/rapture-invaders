@@ -2,6 +2,18 @@
 
 A playable BioShock-themed fixed-screen shooter built with Phaser 3 and Vite. Hosted scores use a Codex Sites Worker and D1 database.
 
+## Presentation
+
+[![Rapture Invaders gameplay](docs/presentation/gameplay.png)](docs/presentation/gameplay.mp4)
+
+- [Watch the gameplay video](docs/presentation/gameplay.mp4)
+- [View the gameplay screenshot](docs/presentation/gameplay.png)
+- [Codex conversation history](docs/presentation/history/codex-cli-prompt-history.md)
+- [ChatGPT conversation history](docs/presentation/history/chatgpt-prompt-history.txt) · [HTML export](docs/presentation/history/chatgpt-prompt-history.html)
+- [Play on Codex Sites](https://rapture-invaders.simonvdw.chatgpt.site) — currently private; viewers need access.
+
+The video and screenshot show the game in action. The conversation exports document development and art direction; historical local-file links in those exports may not resolve on GitHub.
+
 ## Run
 
 ```sh
