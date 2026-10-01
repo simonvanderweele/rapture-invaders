@@ -1,15 +1,19 @@
 # Rapture Invaders
 
-A playable BioShock-themed fixed-screen shooter built with Phaser 3 and Vite. No backend required.
+A playable BioShock-themed fixed-screen shooter built with Phaser 3 and Vite. Hosted scores use a Codex Sites Worker and D1 database.
 
 ## Run
 
 ```sh
 npm install
+npm run build
+npm run db:local
+npm run dev:hosted
+# In another terminal for hot reload:
 npm run dev
 ```
 
-Open the URL printed by Vite (normally http://localhost:5173). `npm run build` produces `dist/`; `npm run preview` serves that build. `npm test` checks the combat rules.
+Open the URL printed by Vite (normally http://localhost:5173). `npm run build` produces `dist/client` plus `dist/server/index.js`. The Worker preview runs on http://localhost:8787; Vite proxies `/api` to it. `npm test` checks combat, audio, and leaderboard validation/persistence. Run `npm run db:generate` after schema changes; commit generated migrations. Sites applies them on deployment. Wrangler configuration is local-only; Sites manages the production database binding.
 
 ## Play
 
@@ -31,7 +35,9 @@ Open the URL printed by Vite (normally http://localhost:5173). `npm run build` p
 | `src/rules.js` | Enemy tuning, armor damage, fleet layout, burst geometry |
 | `src/assets.js` | Actor animation lifecycle and pickup-only chroma-key shader |
 | `src/actor-animations.js` | Supplied actor frame sizes, frame rates, fire-frame metadata |
-| `src/scores.js` | Local top-five ranking, names, and storage fallback |
+| `src/scores.js` | Hosted scoreboard client and legacy local score helpers |
+| `worker/index.js`, `worker/database.js` | Score API, validation, and D1 queries |
+| `db/schema.ts`, `drizzle/` | Hosted score schema and migrations |
 | `src/juice.js` | Light shafts, fish, sonar, hit flashes, shockwaves, score feedback |
 | `src/main.js` | Phaser boot, screen navigation, controls, HUD |
 | `src/style.css` | Native menu and settings presentation |
@@ -53,7 +59,14 @@ Reload windows last 1.35 / 1.15 / 0.95 seconds. The boss remains damageable thro
 
 The four supplied sheets from `output/wave-announcements-v1` play before waves 1–3 and Big Daddy: 32 frames at 14 fps, centered at (640, 304). Combat and power-up clocks hold during announcements, and Escape pauses the counter as well. Enemy entry begins after the announcement finishes.
 
-The final death plays an animated signal-loss sequence before opening the high-score screen. Victory uses a matching success sequence. The five best runs are saved on this device, sorted by score. The current run is initially stored as DIVER; players may save a name of up to twelve characters without duplicating their entry. No fabricated scores fill empty rows. Retry starts a clean run; Return to Menu clears combat and pending transitions. If persistent storage is unavailable, the table retains session scores and labels that limitation.
+The final death plays an animated signal-loss sequence before opening the high-score screen. Victory uses a matching success sequence. Players submit a name and score to the hosted database with SAVE SCORE. Normal and Drowned have separate top-five tables; the menu HIGH SCORES button can browse both. Retries preserve a run ID and secret edit token to prevent duplicate rows or renaming another run. Load and save failures are explicit, with a retry button. Existing device-only records are preserved but are not automatically uploaded.
+
+The server validates mode, wave, score range, score increments, and names; it does not simulate gameplay and is not a competitive anti-cheat system. Site access remains owner-private until sharing is explicitly changed.
+
+## Drowned
+
+Start Game opens difficulty selection. Drowned has two hulls, 18% faster enemy shots, 25% shorter dive intervals and boss recovery, one additional simultaneous diver, 15% shorter enemy fire intervals, and seven-second power-ups. Music smoothly shifts to 95% speed with lowered pitch and restores to 100% at the menu, without replacing the audio element. Retry keeps the mode. Art currently uses a cold tint; register delivered replacement animation sheets in `src/drowned-assets.js` under `public/assets/drowned/`.
+
 
 ## Art and effects
 

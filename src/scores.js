@@ -19,3 +19,21 @@ export class ScoreBoard {
     return this.scores;
   }
 }
+
+export class HostedScoreBoard {
+  constructor(mode = 'normal', fetcher = globalThis.fetch.bind(globalThis)) {
+    this.mode = mode; this.fetcher = fetcher; this.scores = [];
+  }
+  async request(options) {
+    const response = await this.fetcher(`/api/scores?mode=${this.mode}`, { ...options, signal: AbortSignal.timeout(10000) });
+    if (!response.ok) throw new Error('Leaderboard unavailable');
+    const data = await response.json();
+    if (!Array.isArray(data.scores)) throw new Error('Invalid leaderboard response');
+    this.scores = data.scores;
+    return this.scores;
+  }
+  load() { return this.request(); }
+  save(entry) {
+    return this.request({ method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...entry, mode: this.mode }) });
+  }
+}

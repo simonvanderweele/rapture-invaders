@@ -3,7 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "scripts": {"dev": "vite --host 0.0.0.0", "build": "vite build", "preview": "vite preview --host 0.0.0.0", "test": "node --test"},
-  "dependencies": {"phaser": "^3.90.0", "@fontsource/press-start-2p": "^5.2.5"},
-  "devDependencies": {"vite": "^7.1.0"}
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "node scripts/build.mjs",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node --test",
+    "dev:hosted": "wrangler dev --port 8787",
+    "db:generate": "drizzle-kit generate",
+    "db:local": "wrangler d1 migrations apply DB --local"
+  },
+  "dependencies": {
+    "@fontsource/press-start-2p": "^5.2.5",
+    "drizzle-orm": "^0.45.3",
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.11",
+    "esbuild": "^0.28.2",
+    "vite": "^7.1.0",
+    "wrangler": "^4.145.0"
+  }
 }

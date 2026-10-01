@@ -6,9 +6,16 @@
   <div id="game"></div><img id="menu-cameo" src="/assets/menu-cameo-pixel-v2.png" alt="" aria-hidden="true" draggable="false"/><div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   <section id="menu" class="screen">
     <h1 class="menu-title"><span>RAPTURE<br>INVADERS</span><canvas width="768" height="256" aria-hidden="true" hidden></canvas></h1>
-    <div class="mode-select" role="group" aria-label="Difficulty"><button data-mode="normal" aria-pressed="true">NORMAL</button><button data-mode="drowned" aria-pressed="false">DROWNED</button></div><p id="mode-description">3 HULLS · THE ORIGINAL DESCENT</p>
     <div class="menu-buttons"><button class="primary" data-action="start">START GAME</button><button data-action="options">OPTIONS</button><button data-action="credits">CREDITS</button></div>
+    <button class="menu-leaderboard" data-action="leaderboard">HIGH SCORES</button>
     <p class="controls">ARROW KEYS / WASD TO MOVE <em>•</em> SPACE TO SHOOT</p>
+  </section>
+  <section id="difficulty" class="screen hidden" aria-labelledby="difficulty-title">
+    <h2 id="difficulty-title">CHOOSE YOUR DESCENT</h2><div class="deco"><span></span><b>▎▌▎</b><span></span></div>
+    <div class="difficulty-choices">
+      <button class="difficulty-choice normal-choice" data-mode="normal"><strong>NORMAL</strong><span>THE ORIGINAL DESCENT</span><small>3 HULLS · STANDARD ATTACKS</small></button>
+      <button class="difficulty-choice drowned-choice" data-mode="drowned"><span class="danger-label">HARDCORE</span><strong>DROWNED</strong><span>THE DEEP DOES NOT FORGIVE</span><small>2 HULLS · FASTER ATTACKS<br>SHORTER POWER-UPS</small></button>
+    </div><button class="back" data-action="menu">BACK</button>
   </section>
   <section id="options" class="screen hidden" aria-labelledby="options-title"><h2 id="options-title">OPTIONS</h2><div class="deco"><span></span><b>▎▌▎</b><span></span></div><div class="settings panel"><label for="music">MUSIC <output id="music-value">40%</output></label><input id="music" type="range" min="0" max="100" value="40"/><label for="sfx">SFX <output id="sfx-value">85%</output></label><input id="sfx" type="range" min="0" max="100" value="85"/></div><p class="saved">CHANGES SAVE AUTOMATICALLY</p><button class="back primary" data-action="menu">BACK</button></section>
   <section id="credits" class="screen hidden" aria-labelledby="credits-title"><h2 id="credits-title">CREDITS</h2><div class="deco"><span></span><b>▎▌▎</b><span></span></div><div class="credit-copy"><p>DESIGN & CODE<strong>YOUR NAME</strong></p><p>ART<strong>YOUR NAME</strong></p><p>MUSIC & SFX<strong>AUDIO CREDITS</strong></p><small>THANKS FOR PLAYING</small></div><button class="back primary" data-action="menu">BACK</button></section>
@@ -16,10 +23,11 @@
   <section id="pause" class="screen modal hidden"><div class="panel"><p class="eyebrow">SIGNAL HELD</p><h2>PAUSED</h2><button class="primary" data-action="resume">RESUME</button><button data-action="menu">MAIN MENU</button><p class="hint">ESC TO RESUME</p></div></section>
   <section id="result" class="screen hidden" aria-labelledby="result-title">
     <h2 id="result-title">HIGH SCORES</h2><div class="deco"><span></span><b>▎▌▎</b><span></span></div>
+    <div id="board-tabs" class="hidden" role="group" aria-label="Leaderboard mode"><button data-board="normal" aria-pressed="true">NORMAL</button><button data-board="drowned" aria-pressed="false">DROWNED</button></div>
     <p class="eyebrow" id="result-eyebrow"></p><p id="result-score"></p>
-    <form id="score-form"><label for="score-name">YOUR NAME <small>UP TO 12 CHARACTERS</small></label><div class="name-row"><input id="score-name" maxlength="12" value="DIVER" autocomplete="off" spellcheck="false"/><button id="score-save" type="submit" class="primary">SAVE NAME</button></div></form>
+    <form id="score-form"><label for="score-name">YOUR NAME <small>UP TO 12 CHARACTERS</small></label><div class="name-row"><input id="score-name" maxlength="12" value="DIVER" autocomplete="off" spellcheck="false"/><button id="score-save" type="submit" class="primary">SAVE SCORE</button></div></form>
     <table id="score-table"><thead><tr><th scope="col">RANK</th><th scope="col">NAME</th><th scope="col">SCORE</th></tr></thead><tbody id="score-rows"></tbody></table>
-    <p id="score-storage" aria-live="polite"></p><div class="result-buttons"><button class="primary" data-action="start">RETRY</button><button data-action="menu">RETURN TO MENU</button></div>
+    <p id="score-storage" aria-live="polite"></p><div class="result-buttons"><button id="score-refresh" data-action="loadScores">REFRESH</button><button id="result-retry" class="primary" data-action="begin">RETRY</button><button data-action="menu">RETURN TO MENU</button></div>
   </section>
   <div id="touch-controls" class="hidden"><button id="touch-left" aria-label="Move left">◀</button><button id="touch-right" aria-label="Move right">▶</button><button id="touch-fire" aria-label="Shoot">FIRE</button></div>
   <p id="loading">CONNECTING TO RAPTURE…</p>
