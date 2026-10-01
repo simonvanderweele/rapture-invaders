@@ -21,8 +21,8 @@ export class OceanScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-ESC', () => this.ui.escape());
     this.input.keyboard.on('keydown-ENTER', event => { if (this.ui.screen === 'menu' && !(event.target instanceof HTMLButtonElement)) this.ui.start(); });
     this.input.keyboard.on('keydown-SPACE', event => { if (event.target instanceof HTMLInputElement || event.target instanceof HTMLButtonElement) return; event.preventDefault(); });
-    this.menuShip = actorSprite(this, 640, 288, 'player', 2).setDepth(5);
-    this.tweens.add({ targets: this.menuShip, y: 296, yoyo: true, repeat: -1, duration: 1500, ease: 'Sine.easeInOut' });
+    this.menuShip = actorSprite(this, 640, 340, 'player', 2).setDepth(5);
+    this.tweens.add({ targets: this.menuShip, y: 348, yoyo: true, repeat: -1, duration: 1500, ease: 'Sine.easeInOut' });
     this.touch = { left: false, right: false, fire: false };
     this.mode = 'menu'; this.ui.ready(this);
   }
