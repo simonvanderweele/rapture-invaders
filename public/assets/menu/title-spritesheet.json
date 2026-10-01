@@ -1,0 +1,12 @@
+{
+  "frameWidth": 768,
+  "frameHeight": 256,
+  "frames": 48,
+  "columns": 4,
+  "rows": 12,
+  "frameRate": 8,
+  "repeat": 0,
+  "holdLastFrame": true,
+  "durationSeconds": 6.0,
+  "order": "left to right, top to bottom"
+}

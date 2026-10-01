@@ -1,0 +1,98 @@
+{
+  "date": "2026-10-01",
+  "target": {
+    "viewport": [
+      1280,
+      720
+    ],
+    "world": [
+      1280,
+      720
+    ],
+    "theme": "navy/brass",
+    "browser": "agent-browser Chromium"
+  },
+  "reference": {
+    "menu": "output/design-mockups/main-menu-v1.png",
+    "options": "output/design-mockups/options-v1.png",
+    "credits": "output/design-mockups/credits-v1.png",
+    "referencePixels": [
+      1672,
+      941
+    ],
+    "art": "output/design-mockups/game-asset-sheet-v1.png",
+    "artPixels": [
+      1586,
+      992
+    ]
+  },
+  "checks": [
+    "npm test: 12 passing tests",
+    "npm run build: passed",
+    "browser page loads without runtime errors",
+    "keyboard movement and shooting",
+    "pause freezes simulation clock",
+    "volume persistence in localStorage",
+    "keyboard range slider adjusts volume",
+    "all three power-up collection paths",
+    "shield prevents hull damage",
+    "three waves transition into boss",
+    "boss five-shot and seven-shot patterns",
+    "victory and defeat screens",
+    "restart resets lives, wave, and score",
+    "2/4/5/50 total hits to kill, including heavy armor",
+    "real MP3 decoded and playing in a loop at measured gain 0.40000000596",
+    "formation ships hold fire; two concurrent divers in first wave",
+    "actor idle, shooting, pickup, and death animation lifecycle",
+    "pause freezes sprite frames and simulation",
+    "burst collision provenance cannot propagate",
+    "burst fragments expire after 650ms",
+    "single menu-only photo: opacity below 7%, transform changes over time",
+    "boss enrage at 25 HP, delayed victory and clean restart",
+    "Music starts at 4 seconds and repeats from 4 seconds; browser measured 4.760454s on startup and 4.458187s after end-of-track restart, volume 40%",
+    "all four authored wave counters and transition pause/resume",
+    "fresh respawn at center after death animation",
+    "2.2s flashing invulnerability then normal damage resumes",
+    "signal-loss game over followed by top five",
+    "saving a name persists the same run without duplicates",
+    "retry and menu clear old transition callbacks",
+    "pixel-art menu image replaces photograph",
+    "audio incident: automated test browser was also playing; stopped and closed",
+    "muted audio verification: 25 start calls reuse one media element/source/context",
+    "exclusive music lock prevents second instance playback; ownership transfers after release",
+    "blur pauses media and suspends context; dispose closes context and releases lock",
+    "boss: three specials, 60%/30% phase thresholds, locked lane targets",
+    "boss warnings pause and resume; electric damage cancels hazards on respawn",
+    "four final-phase mines detonate into bounded radial volleys",
+    "rivet barrage repeats volleys and boss victory destroys hazard graphics",
+    "latest pixel cutout appears at 30% opacity and 24% stage width"
+  ],
+  "method": "Browser interactions plus targeted development-state setup to exercise later waves, damage, and boss/result branches. This is not a full human balance playthrough. Final audio verification browser launched with --mute-audio; real playback states were inspected without adding audible sound.",
+  "screens": [
+    "menu",
+    "options",
+    "credits",
+    "gameplay",
+    "heavies",
+    "boss",
+    "juice-gameplay",
+    "menu-cameo",
+    "high-scores",
+    "wave-counter",
+    "menu-cameo-pixel",
+    "boss-electro-warning",
+    "menu-cameo-final"
+  ],
+  "remaining": [
+    "Procedural skyline differs from reference artwork",
+    "Simplified corner ornamentation",
+    "Provisional Press Start 2P font; source font unknown",
+    "Pickups 28x28 versus proposed 24x24",
+    "Mobile touch and Canvas fallback not browser-tested",
+    "Vite emits a large-bundle warning for Phaser",
+    "Pickup icons still use temporary chroma key",
+    "Synthesized sound effects and placeholder credit names",
+    "Human playtesting needed to tune dive cadence and impact strength"
+  ],
+  "parityClaim": false
+}
